@@ -19,7 +19,6 @@ driver.get(url)
 driver.find_element(By.CSS_SELECTOR, "#address").click()
 time.sleep(2)
 
-
 ################## insertar ###########################
 
 codigo_postal = "32005"
@@ -39,11 +38,11 @@ calle.send_keys(Keys.DOWN)
 calle.send_keys(Keys.ENTER)
 driver.find_element(By.XPATH, "(//button[@type='submit'])[2]").click()
 time.sleep(5)
+cup = driver.find_element(By.XPATH, "//body/div[@id='root']/section[@role='main']/div/div/div/div/div[2]/p[1]")
+print(cup.text)
+# FUNCION PARA REFRESCAR LA PAGINA Y HACERLO TO DO DE NUEVO (TODO IMPLEMENTARLO)
+# driver.refresh()
+# time.sleep(10)
 
-#FUNCION PARA REFRESCAR LA PAGINA Y HACERLO TO DO DE NUEVO (TODO IMPLEMENTARLO)
-#driver.refresh()
-#time.sleep(10)
 
-
-
-#TODO CREAR UNA CLASE O FUNCION PARA PODER AÑADIR TODA LA LOGICA DEL SCRAPING Y PASAR POR PARAMETRO LA VARIABLE Y HACEMOS UN FOR DE LAS VARIABLES QUE TENEMOS
+# TODO CREAR UNA CLASE O FUNCION PARA PODER AÑADIR TODA LA LOGICA DEL SCRAPING Y PASAR POR PARAMETRO LA VARIABLE Y HACEMOS UN FOR DE LAS VARIABLES QUE TENEMOS
