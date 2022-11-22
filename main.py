@@ -4,10 +4,15 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 import pandas as pd
+from openpyxl import load_workbook
 import time
 
 encoding: utf_8
-filesheet = pd.read_excel('Data_Prueba.xlsx', usecols='E:H')
+filename = 'Data_Prueba.xlsx'
+filesheet = pd.read_excel(filename, usecols='E:H')
+
+workbook = load_workbook(filename)
+worksheet = workbook.active
 
 cp = list(filesheet.loc[:, 'CP'])
 dir = list(filesheet.loc[:, 'DIRECCION'])
@@ -19,9 +24,8 @@ for i in range(len(cp)):
 
 valor_cup = ""
 valor_potenciaP1 = ""
-
-datas = {"cups": [],
-         "potencia": []}
+cups = []
+potenciasP1 = []
 
 class webScrapping():
     def recolectar_cups_potenciaP1(self):
@@ -46,9 +50,9 @@ class webScrapping():
             potenciaP1 = driver.find_element(By.XPATH, "//p[3]")
 
             valor_cup = cup.text[6:len(cup.text)]
-            datas["cups"].append(valor_cup)
+            cups.append(valor_cup)
             valor_potenciaP1 = potenciaP1.text[24:len(potenciaP1.text)]
-            datas["potencia"].append(valor_potenciaP1)
+            potenciasP1.append(valor_potenciaP1)
             driver.refresh()
 
 
@@ -58,7 +62,9 @@ driver.maximize_window()
 driver.get(url)
 trabajo = webScrapping()
 trabajo.recolectar_cups_potenciaP1()
+for index, value in enumerate(cups):
+    worksheet.cell(row=index + 2, column=10, value=value)
+for index, value in enumerate(potenciasP1):
+    worksheet.cell(row=index + 2, column=11, value=value)
 
-df = pd.DataFrame(datas)
-with pd.ExcelWriter('100_datos_prueba.xlsx', mode='a') as writer:
-    df.to_excel(writer, sheet_name='Hoja2')
+workbook.save(filename)
