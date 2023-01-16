@@ -1,6 +1,6 @@
 from encodings import utf_8
 from selenium import webdriver
-from selenium.common import NoSuchElementException, ElementClickInterceptedException
+from selenium.common import NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
@@ -9,9 +9,9 @@ from openpyxl import load_workbook
 import time
 
 encoding: utf_8
-filename = 'Naturgy_datos.xlsx'
+# filename = 'Naturgy_datos.xlsx'
 # filename = 'SEBAS.xlsx'
-# filename = 'Data_Prueba.xlsx'
+filename = 'Data_Prueba.xlsx'
 filesheet = pd.read_excel(filename, usecols='E:H')
 
 workbook = load_workbook(filename)
@@ -37,34 +37,58 @@ class webScrapping():
         for i in range(len(cp)):
             try:
                 # DAR CLICK EN DIRECCION
-                driver.find_element(By.CSS_SELECTOR, "#address").click()
+                driver.find_element(By.XPATH, "//a[normalize-space()='introducir tu dirección']").click()
                 time.sleep(5)
 
             except ElementClickInterceptedException:
                 driver.refresh()
                 continue
-
-            # Poner el codigo postal
-            driver.find_element(By.CSS_SELECTOR, "#postalCode").send_keys(cp_valor_final[i])
-            time.sleep(5)
+            # Poner la direccion
             try:
-                for j in range(len(loc)):
-                    if not pd.isna(loc[j]):
-                        # Elegir la localidad
-                        localidad = driver.find_element(By.CSS_SELECTOR, "#city")
-                        selector_localidad = Select(localidad)
-                        selector_localidad.select_by_visible_text(loc[j])
-                    else:
-                        continue
+                direccion = driver.find_element(By.XPATH,
+                                                "//section[@role='main']//div//div//div//div//div//div//div//div//div//div//div//div//div//div//div//input[@role='combobox']")
+                direccion.send_keys(dir[i])
+                time.sleep(10)
+                direccion.send_keys(Keys.DOWN)
+                direccion.send_keys(Keys.ENTER)
+            except NoSuchElementException:
+                driver.refresh()
+                continue
+            try:
+                time.sleep(5)
+                piso = driver.find_element(By.XPATH,
+                                           "//body/div/section[@role='main']/div/div/div/div/div/div/div/div/div/div/div/div/div/div/input[1]")
+                piso.click()
+                time.sleep(5)
+                piso.send_keys(Keys.DOWN)
+                piso.send_keys(Keys.ENTER)
+                time.sleep(10)
+            except ElementNotInteractableException:
+                driver.refresh()
+                continue
+            try:
+                driver.find_element(By.XPATH,"//body[1]/div[1]/section[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[4]/div[1]/button[1]").click()
+            except NoSuchElementException:
+                driver.refresh()
+                continue
+            time.sleep(10)
+
+            try:
+                if not pd.isna(loc[i]):
+                    # Elegir la localidad
+                    localidad = driver.find_element(By.CSS_SELECTOR, "#city")
+                    selector_localidad = Select(localidad)
+                    selector_localidad.select_by_visible_text(loc[i])
+                else:
+                    continue
             except NoSuchElementException:
                 driver.refresh()
                 continue
             try:
                 # Poner el valor de la calle
                 calle = driver.find_element(By.CSS_SELECTOR, "#street")
-                calle.click()
                 calle.send_keys(dir[i])
-                time.sleep(10)
+                time.sleep(15)
                 calle.send_keys(Keys.DOWN)
                 calle.send_keys(Keys.ENTER)
             except NoSuchElementException:
@@ -73,7 +97,7 @@ class webScrapping():
 
             # Darle al boton de calcular
             driver.find_element(By.XPATH, "(//button[@type='submit'])[2]").click()
-            time.sleep(10)
+            time.sleep(30)
 
             try:
                 # Obtiene el cup y la potenciaP1
